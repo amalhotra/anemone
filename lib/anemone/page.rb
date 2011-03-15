@@ -29,7 +29,10 @@ module Anemone
     attr_accessor :referer
     # Response time of the request for this page in milliseconds
     attr_accessor :response_time
-
+	
+	# Charset of this site
+	attr_accessor :charset
+	
     #
     # Create a new page
     #
@@ -47,6 +50,8 @@ module Anemone
       @response_time = params[:response_time]
       @body = params[:body]
       @error = params[:error]
+      
+      @charset=params[:charset]
 
       @fetched = !params[:code].nil?
     end
@@ -74,7 +79,7 @@ module Anemone
     #
     def doc
       return @doc if @doc
-      @doc = Nokogiri::HTML(@body) if @body && html? rescue nil
+      @doc = Nokogiri::HTML(@body,nil,@charset) if @body && html? rescue nil
     end
 
     #
