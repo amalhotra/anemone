@@ -1,7 +1,7 @@
 $:.unshift(File.dirname(__FILE__))
 require 'spec_helper'
 
-%w[pstore tokyo_cabinet mongodb redis].each { |file| require "anemone/storage/#{file}.rb" }
+%w[pstore tokyo_cabinet mongodb redis s3].each { |file| require "anemone/storage/#{file}.rb" }
 
 module Anemone
   describe Storage do
@@ -167,6 +167,17 @@ module Anemone
         end
       end
 
+      describe Storage::S3 do
+        it_should_behave_like "storage engine"
+
+        before(:each) do
+          @store = Storage.S3
+        end
+
+        after(:each) do
+          @store.close
+        end
+      end
     end
   end
 end
