@@ -6,9 +6,8 @@ module Anemone
   module Storage
     class S3
       
-      def initialize(bucket,purge=false)
+      def initialize(bucket)
         @bucket = bucket
-        @bucket.versions.each{|version| version.delete } if purge
         self
       end
       

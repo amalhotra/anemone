@@ -51,11 +51,10 @@ module Anemone
     
     class SimpleDb
       
-      def initialize(db,domain,bucket,purge=false)
+      def initialize(db,domain,bucket)
         @db = db
         @domain = domain
         @bucket = bucket
-        @domain.delete! if purge && @domain.exists?
         self
       end
       
