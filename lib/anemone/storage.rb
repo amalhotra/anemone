@@ -40,6 +40,19 @@ module Anemone
       raise "Second argument must be an instance of AWS::S3::Bucket" unless bucket.is_a?(AWS::S3::Bucket)
       self::S3.new(s3,bucket,purge)
     end
+    
+    def self.SimpleDb(sdb = nil,domain = nil,s3 = nil,bucket = nil,purge = false)
+      require 'anemone/storage/simple_db'
+      sdb ||= SimpleDB.new
+      raise "First argument must be an instance of AWS::SimpleDB" unless sdb.is_a?(AWS::SimpleDB)
+      domain ||= sdb.domains.create('pages')
+      raise "Second argument must be an instance of AWS::SimpleDB::Domain" unless domain.is_a?(AWS::SimpleDB::Domain)
+      s3 ||= AWS::S3.new
+      raise "Third argument must be an instance of AWS::S3" unless s3.is_a?(AWS::S3)
+      bucket ||= s3.buckets.create('pages')
+      raise "Fourth argument must be an instance of AWS::S3::Bucket" unless bucket.is_a?(AWS::S3::Bucket)
+      self::SimpleDb.new(sdb,domain,bucket,purge)
+    end
 
   end
 end

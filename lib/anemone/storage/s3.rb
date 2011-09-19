@@ -6,10 +6,10 @@ module Anemone
   module Storage
     class S3
       
-      def initialize(s3,bucket,purge)
-        @s3 = s3
+      def initialize(bucket,purge=false)
         @bucket = bucket
         @bucket.versions.each{|version| version.delete } if purge
+        self
       end
       
       def [](url)
@@ -61,7 +61,7 @@ module Anemone
         @bucket.objects[digest(url)].exists?
       end
       
-      private
+      protected
       
       def digest(data)
         Digest::MD5.hexdigest(data.strip)
