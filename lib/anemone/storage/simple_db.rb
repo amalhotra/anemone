@@ -32,7 +32,7 @@ module Anemone
       def update_s3_fields(p_hash,bucket)
         h = {}
         o = bucket.objects[digest(p_hash[:url])]
-        S3_FIELDS+DUP_FIELDS.each do |k|
+        (S3_FIELDS+DUP_FIELDS).each do |k|
           h[k] = p_hash[k]
         end
         o.write(h.to_json,{:content_type => 'application/json'})
@@ -108,7 +108,8 @@ module Anemone
       private
       
       def load_page(page_rec)
-        s3_json = @bucket.objects[page_rec.s3]
+        o = @bucket.objects[page_rec.s3]
+        s3_json = o.read
         h = page_rec.attributes
         h.merge!(JSON.parse(s3_json))
         Page.from_hash(h)
