@@ -44,7 +44,7 @@ module Anemone
     
     def self.SimpleDb(sdb = nil,domain = nil,s3 = nil,bucket = nil,purge = false)
       require 'anemone/storage/simple_db'
-      sdb ||= SimpleDB.new
+      sdb ||= AWS::SimpleDB.new
       raise "First argument must be an instance of AWS::SimpleDB" unless sdb.is_a?(AWS::SimpleDB)
       domain.delete! if purge && domain.exists?
       domain ||= sdb.domains.create('pages')
