@@ -1,7 +1,7 @@
 $:.unshift(File.dirname(__FILE__))
 require 'spec_helper'
 
-%w[pstore tokyo_cabinet mongodb redis s3].each { |file| require "anemone/storage/#{file}.rb" }
+%w[pstore tokyo_cabinet mongodb redis s3 simple_db].each { |file| require "anemone/storage/#{file}.rb" }
 
 module Anemone
   describe Storage do
@@ -51,7 +51,7 @@ module Anemone
           @store.should respond_to(:[])
           @store.should respond_to(:[]=)
 
-          @store[@url] = @page 
+          @store[@url] = @page
           @store[@url].url.should == URI(@url)
         end
 
@@ -79,7 +79,7 @@ module Anemone
           pages = urls.map { |url| Page.new(URI(url)) }
           urls.zip(pages).each { |arr| @store[arr[0]] = arr[1] }
 
-          (@store.keys - urls).should == [] 
+          (@store.keys - urls).should == []
         end
 
         it "should implement each" do
@@ -91,7 +91,7 @@ module Anemone
 
           result = {}
           @store.each { |k, v| result[k] = v }
-          (result.keys - urls).should == [] 
+          (result.keys - urls).should == []
           (result.values.map { |page| page.url.to_s } - urls).should == []
         end
 
@@ -177,6 +177,19 @@ module Anemone
         after(:each) do
           @store.close
         end
+      end
+
+      describe Storage::SimpleDb do
+        it_should_behave_like "storage engine"
+
+        before(:each) do
+          @store = Storage.SimpleDb
+        end
+
+        after(:each) do
+          @store.close
+        end
+        
       end
     end
   end
