@@ -21,6 +21,7 @@ module Anemone
       boolean_attr :fetched
       string_attr :links, :set => true
       string_attr :s3
+      integer_attr :gen
       
       def update_rec(url,h,bucket)
         h[:url] = url

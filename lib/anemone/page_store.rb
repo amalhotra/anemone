@@ -58,6 +58,11 @@ module Anemone
       has_key? url
     end
 
+    # Has this page been visited in current crawl generation?
+    def is_visited?(url,gen)
+      self[url].gen == gen
+    end
+
     #
     # Use a breadth-first search to calculate the single-source
     # shortest paths from *root* to all pages in the PageStore

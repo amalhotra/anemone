@@ -57,7 +57,9 @@ module Anemone
       # HTTP read timeout in seconds
       :read_timeout => nil,
       #  Crawl sub-domains?
-      :crawl_subdomain => true
+      :crawl_subdomain => true,
+      # Crawl generation
+      :gen => 0
     }
 
     # Create setter methods for all options to be called from the crawl block
@@ -255,7 +257,7 @@ module Anemone
     # Returns +false+ otherwise.
     #
     def visit_link?(link, from_page = nil)
-      !@pages.has_page?(link) &&
+      !(@pages.has_page?(link) && @pages.is_visited?(link,@opts[:gen])) &&
       !skip_link?(link) &&
       !skip_query_string?(link) &&
       allowed(link) &&

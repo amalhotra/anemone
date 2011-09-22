@@ -39,7 +39,8 @@ module Anemone
                                       :referer => referer,
                                       :depth => depth,
                                       :redirect_to => redirect_to,
-                                      :response_time => response_time)
+                                      :response_time => response_time,
+                                      :gen => page_generation)
         end
 
         return pages
@@ -93,6 +94,10 @@ module Anemone
     #
     def read_timeout
       @opts[:read_timeout]
+    end
+
+    def page_generation
+      @opts[:gen]
     end
 
     private

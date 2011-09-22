@@ -29,6 +29,8 @@ module Anemone
     attr_accessor :referer
     # Response time of the request for this page in milliseconds
     attr_accessor :response_time
+    # Crawl generation
+    attr_accessor :gen
 
     #
     # Create a new page
@@ -47,6 +49,7 @@ module Anemone
       @response_time = params[:response_time]
       @body = params[:body]
       @error = params[:error]
+      @gen = params[:gen] || 0
 
       @fetched = !params[:code].nil?
     end
@@ -169,7 +172,8 @@ module Anemone
        'referer' => @referer.to_s,
        'redirect_to' => @redirect_to.to_s,
        'response_time' => @response_time,
-       'fetched' => @fetched}
+       'fetched' => @fetched,
+       'gen' => @gen}
     end
 
     def self.from_hash(hash)
@@ -182,9 +186,10 @@ module Anemone
        '@visited' => hash['visited'],
        '@depth' => hash['depth'].to_i,
        '@referer' => hash['referer'],
-       '@redirect_to' => URI(hash['redirect_to']),
+       '@redirect_to' => hash['redirect_to'] ? URI(hash['redirect_to']) : nil,
        '@response_time' => hash['response_time'].to_i,
-       '@fetched' => hash['fetched']
+       '@fetched' => hash['fetched'],
+       '@gen' => hash['gen']
       }.each do |var, value|
         page.instance_variable_set(var, value)
       end
