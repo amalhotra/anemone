@@ -174,7 +174,7 @@ module Anemone
     #
     def get_charset(body,header)
       content_type_header = header["content-type"]
-      if content_type_header and content_type = content_type_header.match(/charset=['"]?([\w-]*)/i) and !content_type[1].blank?
+      if content_type_header and content_type = content_type_header.match(/charset=['"]?([\w-]*)/i) and !content_type[1].nil?
         encoding = content_type[1].upcase
       else
         if meta = body.match(/(<meta\s*([^>]*)http-equiv=['"]?content-type['"]?([^>]*))/i)

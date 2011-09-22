@@ -59,7 +59,9 @@ module Anemone
       #  Crawl sub-domains?
       :crawl_subdomain => true,
       # Crawl generation
-      :gen => 0
+      :gen => 0,
+      # Use external link queue
+      :external_link_queue => nil
     }
 
     # Create setter methods for all options to be called from the crawl block
@@ -176,6 +178,14 @@ module Anemone
         links.each do |link|
           link_queue << [link, page.url.dup, page.depth + 1]
         end
+
+        if @external_link_queue
+          links_for_external_queue = links_to_follow_for_external_queue page
+          links_for_external_queue.each do |link|
+            @external_link_queue << { :url => link.dup.to_s }
+          end
+        end
+
         @pages.touch_keys links
 
         @pages[page.url] = page
@@ -206,7 +216,9 @@ module Anemone
       @pages = PageStore.new(storage)
       @robots = Robots.new(@opts[:user_agent]) if @opts[:obey_robots_txt]
 
-      freeze_options
+      @external_link_queue = @opts[:external_link_queue] if @opts[:external_link_queue] and @opts[:external_link_queue].respond_to? :<<
+
+      #freeze_options
     end
 
     #
@@ -249,6 +261,10 @@ module Anemone
       links.select { |link| visit_link?(link, page) }.map { |link| link.dup }
     end
 
+    def links_to_follow_for_external_queue(page)
+      links = @focus_crawl_block ? @focus_crawl_block.call(page) : page.links
+      links.select { |link| visit_link_for_external_queue?(link, page) }.map { |link| link.dup }
+    end
     #
     # Returns +true+ if *link* has not been visited already,
     # and is not excluded by a skip_link pattern...
@@ -262,6 +278,14 @@ module Anemone
       !skip_query_string?(link) &&
       allowed(link) &&
       !too_deep?(from_page) && 
+      (in_allowed_domain?(link) or in_allowed_subdomain?(link))
+    end
+
+    def visit_link_for_external_queue?(link, from_page = nil)
+      !(@pages.has_page?(link) && @pages.is_visited?(link,@opts[:gen])) &&
+      !skip_link?(link) &&
+      !skip_query_string?(link) &&
+      allowed(link) &&
       (in_allowed_domain?(link) or in_allowed_subdomain?(link))
     end
 
