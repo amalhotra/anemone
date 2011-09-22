@@ -1,6 +1,8 @@
 require 'net/https'
 require 'anemone/page'
 require 'anemone/cookie_store'
+require 'htmlentities'
+require 'iconv'
 
 module Anemone
   class HTTP
@@ -33,14 +35,17 @@ module Anemone
         url = URI(url) unless url.is_a?(URI)
         pages = []
         get(url, referer) do |response, code, location, redirect_to, response_time|
-          pages << Page.new(location, :body => response.body.dup,
+          charset = get_charset(response.body.dup,response)
+          body = fix_encoding(response.body.dup,charset)
+          pages << Page.new(location, :body => body,
                                       :code => code,
                                       :headers => response.to_hash,
                                       :referer => referer,
                                       :depth => depth,
                                       :redirect_to => redirect_to,
                                       :response_time => response_time,
-                                      :gen => page_generation)
+                                      :gen => page_generation,
+                                      :charset => charset)
         end
 
         return pages
@@ -153,6 +158,32 @@ module Anemone
         retry unless retries > 3
       end
     end
+  
+    #
+    # Converts character encoding of body to UTF-8
+    #
+  
+    def fix_encoding(body,encoding)
+      coder = HTMLEntities.new
+      ct = Iconv.conv('utf-8//IGNORE', encoding, body) if !encoding.nil?
+      ct = coder.decode(ct)
+    end
+
+    #
+    # Get charset of page based on either header or meta tag
+    #
+    def get_charset(body,header)
+      content_type_header = header["content-type"]
+      if content_type_header and content_type = content_type_header.match(/charset=['"]?([\w-]*)/i) and !content_type[1].blank?
+        encoding = content_type[1].upcase
+      else
+        if meta = body.match(/(<meta\s*([^>]*)http-equiv=['"]?content-type['"]?([^>]*))/i)
+          if meta = meta[0].match(/charset=([\w-]*)/i)
+            encoding = meta[1].upcase
+          end
+        end
+      end
+    end
 
     def connection(url)
       @connections[url.host] ||= {}
@@ -174,7 +205,7 @@ module Anemone
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
 
-      @connections[url.host][url.port] = http.start 
+      @connections[url.host][url.port] = http.start
     end
 
     def verbose?

@@ -13,6 +13,7 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files = ["README.rdoc"]
   s.add_dependency("nokogiri", ">= 1.3.0")
   s.add_dependency("robots", ">= 0.7.2")
+  s.add_dependency("htmlentities")
 
   s.files = %w[
     VERSION

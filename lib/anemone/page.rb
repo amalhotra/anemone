@@ -31,7 +31,9 @@ module Anemone
     attr_accessor :response_time
     # Crawl generation
     attr_accessor :gen
-
+    # Charset of this site
+    attr_accessor :charset
+	
     #
     # Create a new page
     #
@@ -50,6 +52,7 @@ module Anemone
       @body = params[:body]
       @error = params[:error]
       @gen = params[:gen] || 0
+      @charset=params[:charset]
 
       @fetched = !params[:code].nil?
     end
@@ -77,7 +80,7 @@ module Anemone
     #
     def doc
       return @doc if @doc
-      @doc = Nokogiri::HTML(@body) if @body && html? rescue nil
+      @doc = Nokogiri::HTML(@body,nil,@charset) if @body && html? rescue nil
     end
 
     #
