@@ -8,7 +8,7 @@ module Anemone
       
       set_domain_name 'pages'
       
-      S3_FIELDS = %w(body headers data)
+      S3_FIELDS = %w(body headers data links)
       DUP_FIELDS = %w(url)
       
       string_attr :url
@@ -19,7 +19,7 @@ module Anemone
       integer_attr :response_time
       integer_attr :code
       boolean_attr :fetched
-      string_attr :links, :set => true
+      #string_attr :links, :set => true
       string_attr :s3
       integer_attr :gen
       
