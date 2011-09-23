@@ -168,7 +168,7 @@ module Anemone
        'headers' => Marshal.dump(@headers),
        'data' => Marshal.dump(@data),
        'body' => @body,
-       'links' => links.map(&:to_s), 
+       'links' => links.map(&:to_s),
        'code' => @code,
        'visited' => @visited,
        'depth' => @depth,
