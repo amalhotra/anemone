@@ -50,7 +50,7 @@ module Anemone
       :accept_cookies => false,
       # skip any link with a query string? e.g. http://foo.com/?u=user
       :skip_query_strings => false,
-      # proxy server hostname 
+      # proxy server hostname
       :proxy_host => nil,
       # proxy server port number
       :proxy_port => false,
@@ -160,33 +160,47 @@ module Anemone
 
       link_queue = Queue.new
       page_queue = Queue.new
-
+      
+      puts "Core: Create threads"
+      
       @opts[:threads].times do
         @tentacles << Thread.new { Tentacle.new(link_queue, page_queue, @opts).run }
       end
-
+      
+      puts "Core: Threads created"
+      
       @urls.each{ |url| link_queue.enq(url) }
 
       loop do
+        puts "Core: In loop"
         page = page_queue.deq
         @pages.touch_key page.url
         puts "#{page.url} Queue: #{link_queue.size}" if @opts[:verbose]
         do_page_blocks page
         page.discard_doc! if @opts[:discard_page_bodies]
-
-        links = links_to_follow page
-        links.each do |link|
-          link_queue << [link, page.url.dup, page.depth + 1]
+        
+        puts "Core: Add links to link_queue" if @opts[:verbose]
+        if @opts[:depth_limit] == 0
+          links = []
+        else
+          links = links_to_follow page
+          links.each do |link|
+            link_queue << [link, page.url.dup, page.depth + 1]
+          end
         end
-
+        
         if @external_link_queue
+          puts "Core: Get links for external queue" if @opts[:verbose]
           links_for_external_queue = links_to_follow_for_external_queue page
+          puts "Core: Add to SQS"
           links_for_external_queue.each do |link|
             @external_link_queue << { :url => link.dup.to_s }
           end
         end
 
         @pages.touch_keys links
+
+        puts "Core: Save page" if @opts[:verbose]
 
         @pages[page.url] = page
 
@@ -204,6 +218,7 @@ module Anemone
 
       @tentacles.each { |thread| thread.join }
       do_after_crawl_blocks
+      puts "Core: Done" if @opts[:verbose]
       self
     end
 
@@ -277,7 +292,7 @@ module Anemone
       !skip_link?(link) &&
       !skip_query_string?(link) &&
       allowed(link) &&
-      !too_deep?(from_page) && 
+      !too_deep?(from_page) &&
       (in_allowed_domain?(link) or in_allowed_subdomain?(link))
     end
 
