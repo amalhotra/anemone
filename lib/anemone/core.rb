@@ -194,7 +194,7 @@ module Anemone
           links_for_external_queue = links_to_follow_for_external_queue page
           puts "Core: Add to SQS"
           links_for_external_queue.each do |link|
-            @external_link_queue << { :url => link.dup.to_s }
+            @external_link_queue << { :url => CGI.escape(link.dup.to_s), :gen => @opts[:gen] }
           end
         end
 

@@ -24,7 +24,7 @@ module Anemone
       integer_attr :gen
       
       def update_rec(url,h,bucket)
-        h[:url] = url
+        h[:url] = CGI.escape(url)
         h[:s3] = update_s3_fields(h,bucket)
         sdb_h = h.reject{|k,v| S3_FIELDS.include?(k) }
         self.update_attributes!(sdb_h)
@@ -41,7 +41,8 @@ module Anemone
       end
             
       def self.rec(url)
-        PageRecord.first(:where => {:url => url.strip})
+        p url
+        PageRecord.first(:where => {:url => CGI.escape(url.strip)})
       end
       
       def digest(data)
@@ -113,6 +114,7 @@ module Anemone
         s3_json = o.read
         h = page_rec.attributes
         h.merge!(JSON.parse(s3_json))
+        h[:url] = CGI.unescape(h[:url])
         Page.from_hash(h)
       end
             
