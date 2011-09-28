@@ -154,25 +154,20 @@ module Anemone
     #
     def run
       process_options
-
+                  
       @urls.delete_if { |url| !visit_link?(url) }
       return if @urls.empty?
 
       link_queue = Queue.new
       page_queue = Queue.new
       
-      puts "Core: Create threads"
-      
       @opts[:threads].times do
         @tentacles << Thread.new { Tentacle.new(link_queue, page_queue, @opts).run }
       end
       
-      puts "Core: Threads created"
-      
       @urls.each{ |url| link_queue.enq(url) }
 
       loop do
-        puts "Core: In loop"
         page = page_queue.deq
         @pages.touch_key page.url
         puts "#{page.url} Queue: #{link_queue.size}" if @opts[:verbose]
@@ -194,6 +189,7 @@ module Anemone
           links_for_external_queue = links_to_follow_for_external_queue page
           puts "Core: Add to SQS"
           links_for_external_queue.each do |link|
+            p "Add2Q : "+link.to_s if @opts[:verbose]
             @external_link_queue << { :url => CGI.escape(link.dup.to_s), :gen => @opts[:gen] }
           end
         end
@@ -201,7 +197,7 @@ module Anemone
         @pages.touch_keys links
 
         puts "Core: Save page" if @opts[:verbose]
-
+        
         @pages[page.url] = page
 
         # if we are done with the crawl, tell the threads to end
@@ -233,7 +229,7 @@ module Anemone
 
       @external_link_queue = @opts[:external_link_queue] if @opts[:external_link_queue] and @opts[:external_link_queue].respond_to? :<<
 
-      #freeze_options
+      freeze_options
     end
 
     #
@@ -242,7 +238,7 @@ module Anemone
     #
     def freeze_options
       @opts.freeze
-      @opts.each_key { |key| @opts[key].freeze }
+      @opts.each_key { |key| @opts[key].freeze unless key == :external_link_queue}
       @opts[:cookies].each_key { |key| @opts[:cookies][key].freeze } rescue nil
     end
 

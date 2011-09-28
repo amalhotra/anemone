@@ -39,7 +39,7 @@ module Anemone
     #
     def initialize(url, params = {})
       @url = url
-      @data = OpenStruct.new
+      @data = params[:data] && params[:data].is_a?(Hash) ? OpenStruct.new(params[:data]) : OpenStruct.new
 
       @code = params[:code]
       @headers = params[:headers] || {}

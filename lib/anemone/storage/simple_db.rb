@@ -41,7 +41,6 @@ module Anemone
       end
             
       def self.rec(url)
-        p url
         PageRecord.first(:where => {:url => CGI.escape(url.strip)})
       end
       
@@ -53,8 +52,7 @@ module Anemone
     
     class SimpleDb
       
-      def initialize(db,domain,bucket)
-        @db = db
+      def initialize(domain,bucket)
         @domain = domain
         @bucket = bucket
         self

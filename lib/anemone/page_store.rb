@@ -61,7 +61,7 @@ module Anemone
     # Has this page been visited in current crawl generation?
     def is_visited?(url,gen)
       p = self[url]
-      p && p.gen == gen
+      p && p.gen && p.gen == gen
     end
 
     #
