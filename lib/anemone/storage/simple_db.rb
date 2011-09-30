@@ -113,7 +113,9 @@ module Anemone
         h = page_rec.attributes
         h.merge!(JSON.parse(s3_json))
         h[:url] = CGI.unescape(h[:url])
-	h[:data] = Marshal.dump({:s3 => page_rec.s3})
+        data = Marshal.load(h[:data])
+        data.s3 = page_rec.s3 if data.s3.nil?
+	h[:data] = Marshal.dump(data)
         Page.from_hash(h)
       end
             
