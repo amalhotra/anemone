@@ -190,7 +190,8 @@ module Anemone
           puts "Core: Add to SQS"
           links_for_external_queue.each do |link|
             p "Add2Q : "+link.to_s if @opts[:verbose]
-            @external_link_queue << { :url => CGI.escape(link.dup.to_s), :gen => @opts[:gen] }
+            #@external_link_queue << { :url => CGI.escape(link.dup.to_s), :gen => @opts[:gen] }
+            @external_link_queue << { :url => link.dup.to_s, :gen => @opts[:gen] }
           end
         end
 

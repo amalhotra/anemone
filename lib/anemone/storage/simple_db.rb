@@ -6,8 +6,6 @@ module Anemone
   module Storage
     class PageRecord < AWS::Record::Base
       
-      set_domain_name 'pages'
-      
       S3_FIELDS = %w(body headers data links)
       DUP_FIELDS = %w(url)
       
@@ -24,8 +22,9 @@ module Anemone
       integer_attr :gen
       
       def update_rec(url,h,bucket)
-        h[:url] = CGI.escape(url)
+        h[:url] = url
         h[:s3] = update_s3_fields(h,bucket)
+        h[:url] = CGI.escape(h[:url])
         sdb_h = h.reject{|k,v| S3_FIELDS.include?(k) }
         self.update_attributes!(sdb_h)
       end
@@ -112,7 +111,7 @@ module Anemone
         s3_json = o.read
         h = page_rec.attributes
         h.merge!(JSON.parse(s3_json))
-        h[:url] = CGI.unescape(h[:url])
+        #h[:url] = CGI.unescape(h[:url])
         data = Marshal.load(h[:data])
         data.s3 = page_rec.s3 if data.s3.nil?
 	h[:data] = Marshal.dump(data)

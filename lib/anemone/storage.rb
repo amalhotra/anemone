@@ -48,6 +48,7 @@ module Anemone
       raise "First argument must be an instance of AWS::SimpleDB" unless sdb.is_a?(AWS::SimpleDB)
       domain.delete! if purge && domain.exists?
       domain ||= sdb.domains.create('pages')
+      self::PageRecord.set_domain_name domain.name
       raise "Second argument must be an instance of AWS::SimpleDB::Domain" unless domain.is_a?(AWS::SimpleDB::Domain)
       s3 ||= AWS::S3.new
       raise "Third argument must be an instance of AWS::S3" unless s3.is_a?(AWS::S3)
