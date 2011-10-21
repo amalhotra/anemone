@@ -35,6 +35,7 @@ module Anemone
         (S3_FIELDS+DUP_FIELDS).each do |k|
           h[k] = p_hash[k]
         end
+        h["updated_at"] = Time.now
         o.write(h.to_json,{:content_type => 'application/json'})
         o.key
       end
